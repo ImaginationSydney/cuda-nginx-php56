@@ -1,3 +1,0 @@
-[submodule "modules/neural-style"]
-	path = modules/neural-style
-	url = git@github.com:jcjohnson/neural-style.git
