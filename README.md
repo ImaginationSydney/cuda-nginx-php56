@@ -62,3 +62,9 @@ This image supports mysql and postgres.
 
 ### Notes
 Note that PHP-FPM has been configured to pass through environment variables when starting the container using the ``clear_env = no`` flag within the ``/etc/php5/fpm/pool.d/www.conf`` file.
+
+Added to this repo are the cuda dependencies for running GPU workloads. Also note that the neural-style source repository as added here as a submodule.
+
+Remember if you want the latest changes to the neural-style repo, sync the submodule here.
+
+``git submodule sync``

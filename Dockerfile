@@ -16,6 +16,16 @@ RUN apt-get update -y && sudo apt-get upgrade -y && apt-get install -yq php5 php
 					php5-pgsql php5-curl php5-gd php5-mcrypt php5-intl php5-imap php5-tidy \
 					php-pear php5-xmlrpc newrelic-php5
 
+# This PPA installs ffmpeg for you. Run before any scripts to get it in.
+# Add the FFMPEG PPA and install it
+# AND Install Imagemagick
+# AND Enable module development
+RUN add-apt-repository ppa:mc3man/trusty-media -y
+RUN apt-get update && apt-get install ffmpeg imagemagick php5-imagick php5-dev -y
+
+# Update PHP timezone database
+RUN pecl install timezonedb
+
 # Run update timezone replace city with relevant city. eg. "Australia/Sydney"
 RUN cp -p /usr/share/zoneinfo/Australia/Sydney /etc/localtime
 
@@ -82,6 +92,12 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.30.2/install.sh | b
 
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
+
+# Download models to image folder
+RUN mkdir -p /modules
+ADD modules /modules
+RUN chmod +x /modules/neural-style/models/download_models.sh
+RUN (cd /modules/neural-style; /modules/neural-style/models/download_models.sh)
 
 # Set terminal environment
 ENV TERM=xterm
