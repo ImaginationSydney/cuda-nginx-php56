@@ -1,4 +1,4 @@
-FROM imagination/cuda-baseimage-docker:latest
+FROM imagination/cuda-baseimage-docker:cuda-75
 
 # Phusion setup
 ENV HOME /root
@@ -7,21 +7,15 @@ RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
 CMD ["/sbin/my_init"]
 
 # Nginx-PHP Installation
-RUN apt-get update -y && apt-get install -y vim curl wget build-essential python-software-properties git-core
+RUN apt-get update -y && apt-get install -y vim curl wget build-essential python-software-properties git-core unzip \
+    pkg-config python-pip python-dev gfortran libopenblas-dev liblapack-dev libpng-dev libfreetype6-dev libjpeg-dev libhdf5-dev
 RUN wget -O - https://download.newrelic.com/548C16BF.gpg | apt-key add - && \
 echo "deb http://apt.newrelic.com/debian/ newrelic non-free" > /etc/apt/sources.list.d/newrelic.list
 RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 4F4EA0AAE5267A6C
-RUN add-apt-repository -y ppa:ondrej/php5-5.6 && add-apt-repository -y ppa:nginx/stable
+RUN add-apt-repository -y ppa:ondrej/php5-5.6 && add-apt-repository -y ppa:nginx/stable && add-apt-repository -y ppa:mc3man/trusty-media
 RUN apt-get update -y && sudo apt-get upgrade -y && apt-get install -yq php5 php5-cli php5-fpm php5-mysqlnd \
 					php5-pgsql php5-curl php5-gd php5-mcrypt php5-intl php5-imap php5-tidy \
-					php-pear php5-xmlrpc newrelic-php5
-
-# This PPA installs ffmpeg for you. Run before any scripts to get it in.
-# Add the FFMPEG PPA and install it
-# AND Install Imagemagick
-# AND Enable module development
-RUN add-apt-repository ppa:mc3man/trusty-media -y
-RUN apt-get update && apt-get install ffmpeg imagemagick php5-imagick php5-dev -y
+					php-pear php5-xmlrpc newrelic-php5 ffmpeg imagemagick php5-imagick php5-dev nginx-full ntp -y
 
 # Update PHP timezone database
 RUN pecl install timezonedb
@@ -29,11 +23,12 @@ RUN pecl install timezonedb
 # Run update timezone replace city with relevant city. eg. "Australia/Sydney"
 RUN cp -p /usr/share/zoneinfo/Australia/Sydney /etc/localtime
 
-# Install nginx (full)
-RUN apt-get install -y nginx-full
-
-# Install ntpd
-RUN apt-get install -y ntp
+# Add Chainer to Installation for Neural Styling
+ENV LIBRARY_PATH /usr/local/cuda-7.5/targets/x86_64-linux/lib/stubs
+RUN pip install -U setuptools && pip install -U pip
+RUN pip install chainer==1.6.2.1 \
+  Cython==0.23.4 \
+  h5py==2.5.0
 
 # Add build script
 RUN mkdir -p /root/setup
@@ -92,12 +87,6 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.30.2/install.sh | b
 
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
-
-# Download models to image folder
-RUN mkdir -p /modules
-ADD modules /modules
-RUN chmod +x /modules/neural-style/models/download_models.sh
-RUN (cd /modules/neural-style; /modules/neural-style/models/download_models.sh)
 
 # Set terminal environment
 ENV TERM=xterm
