@@ -68,3 +68,6 @@ Added to this repo are the cuda dependencies for running GPU workloads. Also not
 Remember if you want the latest changes to the neural-style repo, sync the submodule here.
 
 ``git submodule sync``
+
+See the following repository for details on the Neural Styling configuration:
+https://github.com/yusuketomoto/chainer-fast-neuralstyle
