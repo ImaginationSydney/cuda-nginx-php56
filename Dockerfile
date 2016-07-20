@@ -26,9 +26,8 @@ RUN cp -p /usr/share/zoneinfo/Australia/Sydney /etc/localtime
 # Add Chainer to Installation for Neural Styling
 ENV LIBRARY_PATH /usr/local/cuda-7.5/targets/x86_64-linux/lib/stubs
 RUN pip install -U setuptools && pip install -U pip
-RUN pip install chainer==1.6.2.1 \
-  Cython==0.23.4 \
-  h5py==2.5.0
+RUN pip install chainer==1.6.2.1 Cython==0.23.4 h5py==2.5.0
+RUN pip install image && pip install awscli --ignore-installed six
 
 # Add build script
 RUN mkdir -p /root/setup
